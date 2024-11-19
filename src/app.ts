@@ -4,6 +4,7 @@ import { testDBConnection } from "./db_services/db_connection";
 import dump from './db_services/backup'
 import authRouter from './routes/authRouter';
 import userRouter from './routes/userRouter'
+import { initializeRabbitMQ, startListening } from './rabbitmqSubscriber'
 
 
 const app = express();
@@ -20,6 +21,8 @@ process.on('SIGINT', () => {
     process.exit(0);
 });
 
-app.listen(3001, () => {
+app.listen(3001, async () => {
+    await initializeRabbitMQ();
+    startListening(); 
     console.log('customer server is running on localhost:3001');
 });
