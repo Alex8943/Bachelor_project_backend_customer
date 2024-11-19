@@ -6,8 +6,10 @@ import dump from './db_services/backup'
 
 const app = express();
 
-testDBConnection();
+//testDBConnection();
 //dump();
+
+
 
 process.on('SIGINT', () => {
     logger.end(); 
