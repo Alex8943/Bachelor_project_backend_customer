@@ -1,3 +1,11 @@
+ 
+.git/
+
+#db files
+backups
+seed_data.ts
+
+
 # Logs
 logs
 *.log
@@ -39,7 +47,7 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+node_modules
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)

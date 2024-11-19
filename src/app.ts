@@ -1,7 +1,13 @@
 import express from 'express';
 import logger from './other_services/winstonLogger'
+import { testDBConnection } from "./db_services/db_connection";
+import dump from './db_services/backup'
+
 
 const app = express();
+
+testDBConnection();
+//dump();
 
 process.on('SIGINT', () => {
     logger.end(); 
