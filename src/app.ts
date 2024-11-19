@@ -1,9 +1,10 @@
 import express from 'express';
+import logger from './other_services/winstonLogger'
 
 const app = express();
 
 process.on('SIGINT', () => {
-    //logger.end(); 
+    logger.end(); 
     console.log('See ya later silly');
     process.exit(0);
 });
