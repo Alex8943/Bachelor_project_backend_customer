@@ -17,6 +17,7 @@ export const initializeRabbitMQ = async () => {
 };
 
 export const startListening = () => {
+    
     if (!channel) {
       console.error('RabbitMQ channel is not initialized.');
       return;
