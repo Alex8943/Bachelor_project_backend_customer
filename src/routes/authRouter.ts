@@ -25,31 +25,45 @@ const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: N
 
 router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
     try {
-        const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
-      
-        let jwtUser = {
-            "id": result.id,
-            "name": result.name,
-            "lastname": result.lastname,
-            "email": result.email,
-            "password": result.password,
-        }
-        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
-        res.status(200).send(resultWithToken);
-        console.log("Only token: ", jwtUser)
-        return resultWithToken;
-    } catch (err:any) {
-        if (err.code == 409){
-            res.status(409).send(err.message);
-            return err.message;
+        const { name, lastname, email, password, role_fk } = req.body;
+
+        // Create user
+        const result: any = await createUser(name, lastname, email, password, role_fk);
+
+        // Prepare JWT payload
+        const jwtUser = {
+            id: result.id,
+            name: result.name,
+            lastname: result.lastname,
+            email: result.email,
+            role_fk: result.role_fk,
+            roleName: result.rolename, // Include role name in the payload
+        };
+
+        // Generate JWT token
+        const token = jwt.sign({ user: jwtUser }, "secret");
+
+        // Return response with token and user data
+        const resultWithToken = {
+            authToken: token,
+            user: result,
+        };
+
+        console.log("User creation successful:", resultWithToken);
+        res.status(200).json(resultWithToken);
+    } catch (err: any) {
+        console.error("Error in /auth/signup:", err);
+
+        if (err.code === 409) {
+            res.status(409).json({ message: err.message });
+        } else if (err.code === 400) {
+            res.status(400).json({ message: err.message });
         } else {
-            res.status(500).send("Something went wrong while creating user ");
-            console.log("Error: ", err)
-            logger.error(err.message);
-            return "Something went wrong while creating user (returning 500)";
+            res.status(500).json({ message: "Something went wrong while creating user" });
         }
     }
-})
+});
+
 
 router.post("/auth/login", validation(loginSchema), async (req, res) => {
     try {
@@ -61,7 +75,6 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
             "email": result.email,
             "password": result.password,
             "role_fk": result.role_fk, // Include role_fk in the JWT payload
-            "roleName": result.role ? result.role.name : null // Include role name if available
         }
         console.log("Role fk: ", jwtUser.role_fk);
        
@@ -119,30 +132,50 @@ export async function getUser(email: string, password: string) {
     }
 }
 
+export async function createUser(name: string, lastname: string, email: string, password: string, role_fk: number) {
+    try {
+        console.log("Received data in createUser:", { name, lastname, email, password, role_fk });
 
-export async function createUser(name: string, lastname: string, email: string, password: string) {
-    try{
-        const alreadyExists = await User.findOne({where: {email: email}});
-        if(alreadyExists){
-            throw {code: 409, message: "User already exists"};
+        // Check if the user already exists
+        const alreadyExists = await User.findOne({ where: { email: email } });
+        if (alreadyExists) {
+            throw { code: 409, message: "User already exists" };
         }
-        let hash_password = bcrypt.hashSync(password, 10);
-        
-        const result = await User.create({
-            name: name,
-            lastname: lastname,
-            email: email,
+
+        // Validate the role_fk and fetch the role
+        const role = await Role.findOne({ where: { id: role_fk } });
+        if (!role) {
+            throw { code: 400, message: "Invalid role ID" };
+        }
+
+        // Hash the password
+        const hash_password = bcrypt.hashSync(password, 10);
+
+        // Create the user with the role_fk
+        const user = await User.create({
+            name,
+            lastname,
+            email,
             password: hash_password,
-            role_fk: 1,
+            role_fk,
         });
 
-        console.log("Created user: ", result);
-        
-        return result;
-    }catch(error){
+        // Prepare the response including the role name
+        const userWithRole = {
+            ...user.get({ plain: true }),
+            rolename: role.name, // Include the role name
+        };
+
+        console.log("Created user with role:", userWithRole);
+        return userWithRole;
+    } catch (error) {
+        console.error("Error in createUser:", error);
         throw error;
     }
-};
+}
+
+
+
 
 router.put("/auth/updateUser/:id", async (req, res) => {
     try {
