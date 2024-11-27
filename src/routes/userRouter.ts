@@ -56,7 +56,7 @@ router.get('/user/:id', async (req, res) => {
 export async function getUserById(value: any){
     try{
         const userResult = await User.findOne({
-            where: {id: value}
+            where: {id: value},
         });
         Logger.info("Specific users fetched successfully");
         return userResult;

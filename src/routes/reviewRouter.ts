@@ -160,11 +160,16 @@ export async function updateReview(id: number, data: any) {
 
 router.get("/reviews/:max", async (req, res) => {
     try {
-        const reviews = await getRangeOfReviews(req.params.max);
-        res.status(200).send(reviews);
+      const max = parseInt(req.params.max, 10); // Convert the max parameter to a number
+      
+      const reviews = await getRangeOfReviews(max);
+      res.status(200).send(reviews);
     } catch (err) {
-        console.error("Error fetching reviews: ", err);
-    }});
+      console.error("Error fetching reviews: ", err);
+      res.status(500).send({ error: "Failed to fetch reviews" });
+    }
+  });
+  
 
 
 // Function to fetch reviews
@@ -177,6 +182,7 @@ export async function getRangeOfReviews(max: any) {
             limit: max, // Sequelize will now receive a number
         });
         return reviews;
+        
     } catch (error) {
         logger.error("Error fetching specific reviews: ", error);
         throw error;
