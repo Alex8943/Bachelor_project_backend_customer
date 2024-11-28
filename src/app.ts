@@ -7,6 +7,7 @@ import userRouter from './routes/userRouter'
 import reviewRouter from './routes/reviewRouter'
 import roleRouter from './routes/roleRouter'
 import userTapRouter from './routes/userTapRouter';
+import genreRouter from './routes/genreRouter';
 import cors from 'cors';
 //import { initializeRabbitMQ, startListening } from './rabbitmqSubscriber'
 
@@ -22,6 +23,7 @@ app.use(userRouter);
 app.use(reviewRouter);
 app.use(roleRouter);
 app.use(userTapRouter);
+app.use(genreRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 
