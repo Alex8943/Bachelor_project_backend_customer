@@ -97,82 +97,6 @@ export async function likeAReview(userId: number, reviewId: number): Promise<str
 
 
 
-// Endpoint to dislike a review
-router.post('/dislike', async (req, res) => {
-    try{
-        const result = await disLikeReview(req.body.userId, req.body.reviewId);
-        res.status(200).send(result);
-    
-    } catch (error) {
-        console.error('Error disliking review:', error);
-        res.status(500).json({ message: 'An error occurred while disliking the review.' });
-    }
-});
-
-export async function disLikeReview(userId: number, reviewId: number) {
-    try {
-        if (!userId || !reviewId) {
-            return 'User ID and Review ID are required.';
-        }
-
-        // Check if the user already liked this review
-        const existingAction = await ReviewActions.findOne({
-            where: { user_fk: userId, review_fk: reviewId },
-        });
-
-        if (existingAction) {
-            return 'You have already liked or disliked this review.';
-        }
-
-        // Create a new dislike action
-        await ReviewActions.create({
-            user_fk: userId,
-            review_fk: reviewId,
-            review_gesture: false, // False indicates a "dislike"
-        });
-
-        // Fetch the review and its genres
-        const review = await Review.findByPk(reviewId, {
-            include: {
-                model: Genre,
-                through: { attributes: [] }, // Include genres without junction table attributes
-            },
-        });
-
-        if (!review) {
-            return 'Review not found.';
-        }
-
-        // Ensure genres are associated in ReviewGenres table
-        const genres = review.get('Genres') as Genre[];
-        if (genres && genres.length > 0) {
-            await Promise.all(
-                genres.map(async (genre) => {
-                    const existingAssociation = await ReviewGenres.findOne({
-                        where: {
-                            review_fk: reviewId,
-                            genre_fk: genre.id,
-                        },
-                    });
-
-                    if (!existingAssociation) {
-                        await ReviewGenres.create({
-                            review_fk: reviewId,
-                            genre_fk: genre.id,
-                        });
-                    }
-                })
-            );
-        }
-        logger.info('Review disliked successfully and genres linked.');
-        return 'Review disliked successfully and genres linked.';
-    } catch (error) {
-        console.error('Error disliking review:', error);
-        logger.error('Error disliking review:', error);
-    }
-};
-
-
 router.get('/liked/:userId', async (req, res) => {
     try {
         const likedReviews = await getAllLikedReviewsFromUser(Number(req.params.userId));
@@ -222,5 +146,50 @@ export async function getAllLikedReviewsFromUser(userId: number) {
         throw new Error('An error occurred while fetching liked reviews.');
     }
 }
+
+router.put('/dislike', async (req, res) => {
+    try {
+        const result = await disLikeAReviewFromUser(req.body.userId, req.body.reviewId);
+        res.status(200).send(result);
+    } catch (error) {
+        console.error('Error disliking review:', error);
+        res.status(500).json({ message: 'An error occurred while disliking the review.' });
+    }
+});
+
+export async function disLikeAReviewFromUser(userId: number, reviewId: number) {
+    try {
+        if (!userId || !reviewId) {
+            throw new Error('User ID and Review ID are required.');
+        }
+
+        // Check if the user already has an action for this review
+        const existingAction = await ReviewActions.findOne({
+            where: {
+                user_fk: userId,
+                review_fk: reviewId,
+            },
+        });
+
+        if (existingAction) {
+            // Update the review_gesture to false (disliked)
+            await existingAction.update({ review_gesture: false });
+            return { message: 'Review disliked successfully.' };
+        } else {
+            // Create a new record with review_gesture set to false
+            await ReviewActions.create({
+                user_fk: userId,
+                review_fk: reviewId,
+                review_gesture: false,
+            });
+            return { message: 'Review disliked successfully.' };
+        }
+    } catch (error) {
+        console.error('Error disliking review:', error);
+        logger.error('Error disliking review:', error);
+        throw new Error('An error occurred while disliking the review.');
+    }
+}
+
 
 export default router;
