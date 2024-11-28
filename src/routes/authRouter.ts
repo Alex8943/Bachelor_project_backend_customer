@@ -77,6 +77,8 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
             "role_fk": result.role_fk, // Include role_fk in the JWT payload
         }
         console.log("Role fk: ", jwtUser.role_fk);
+
+        
        
         let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
         res.status(200).send(resultWithToken);
@@ -107,7 +109,7 @@ export async function getUser(email: string, password: string) {
         // Fetch user details using the email, including the role_fk
         const user = await User.findOne({
             where: { email: email },
-            attributes: ["id", "name", "lastname", "email", "password", "role_fk"], // Include role_fk in attributes
+            attributes: ["id", "name", "lastname", "email", "password", "role_fk", "isBlocked"], // Include role_fk in attributes
             include: [
                 {
                     model: Role,
@@ -202,10 +204,23 @@ export async function updateUser(userId: any, value: any) {
             lastname: value.lastname,
         };
 
+        // Include the email field if provided
+        if (value.email) {
+            updatedFields.email = value.email;
+        }
+
         // Hash the password if it's being updated
         if (value.password) {
             const hashedPassword = await bcrypt.hash(value.password, 10);
             updatedFields.password = hashedPassword;
+        }
+
+        if (value.email && value.email !== user.email) {
+            const existingEmail = await User.findOne({ where: { email: value.email } });
+            if (existingEmail) {
+                throw new Error("Email is already in use.");
+            }
+            updatedFields.email = value.email;
         }
 
         // Update the user
@@ -214,7 +229,7 @@ export async function updateUser(userId: any, value: any) {
         // Fetch the updated user details
         const updatedUser = await User.findOne({
             where: { id: userId },
-            attributes: ['id', 'name', 'lastname'], // Return only the necessary fields
+            attributes: ['id', 'name', 'lastname', 'email'], // Return only the necessary fields
         });
 
         console.log("User updated successfully:", updatedUser);
@@ -224,6 +239,7 @@ export async function updateUser(userId: any, value: any) {
         throw error;
     }
 }
+
 
 
 export default router;
