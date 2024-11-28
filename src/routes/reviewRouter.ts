@@ -173,16 +173,19 @@ router.get("/reviews/:max", async (req, res) => {
 
 
 // Function to fetch reviews
-export async function getRangeOfReviews(max: any) {
+export async function getRangeOfReviews(max: number) {
     try {
         const reviews = await Reviews.findAll({
             where: {
                 isBlocked: false,
             },
-            limit: max, // Sequelize will now receive a number
+            limit: max,
+            include: {
+                model: Genre, // Include genres for each review
+                through: { attributes: [] }, // Exclude junction table attributes
+            },
         });
         return reviews;
-
     } catch (error) {
         logger.error("Error fetching specific reviews: ", error);
         throw error;
@@ -190,11 +193,11 @@ export async function getRangeOfReviews(max: any) {
 }
 
 
+
 //Get one review 
 router.get("/getReview/:id", async (req, res) => {
     try {
-        console.log("TEST")
-
+        
         const result = await getOneReview(req.params);
 
         res.status(200).send(result);
