@@ -1,5 +1,13 @@
 import express from 'express';
-import { ReviewActions, Review, ReviewGenres, Genre } from '../other_services/model/seqModel'; // Adjust the import path as needed
+
+import { 
+    ReviewActions, 
+    Review, 
+    ReviewGenres, 
+    Genre, 
+    User 
+} from '../other_services/model/seqModel'; 
+
 import logger from '../other_services/winstonLogger';
 
 const router = express.Router();
@@ -165,31 +173,54 @@ export async function disLikeReview(userId: number, reviewId: number) {
 };
 
 
-/*
-// Optional: Endpoint to remove a like/dislike
-router.delete('/remove', async (req, res) => {
-    const { userId, reviewId } = req.body;
-
+router.get('/liked/:userId', async (req, res) => {
     try {
-        if (!userId || !reviewId) {
-            return res.status(400).json({ message: 'User ID and Review ID are required.' });
-        }
-
-        // Delete the like/dislike action
-        const deleted = await ReviewActions.destroy({
-            where: { user_fk: userId, review_fk: reviewId },
-        });
-
-        if (!deleted) {
-            return res.status(404).json({ message: 'No like or dislike action found to remove.' });
-        }
-
-        res.status(200).json({ message: 'Action removed successfully.' });
+        const likedReviews = await getAllLikedReviewsFromUser(Number(req.params.userId));
+        res.status(200).send(likedReviews);
     } catch (error) {
-        console.error('Error removing action:', error);
-        res.status(500).json({ message: 'An error occurred while removing the action.' });
+        console.error('Error fetching liked reviews:', error);
+        res.status(500).json({ message: 'An error occurred while fetching liked reviews.' });
     }
 });
-*/
+
+export async function getAllLikedReviewsFromUser(userId: number) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required.');
+        }
+
+        const likedReviews = await ReviewActions.findAll({
+            where: {
+                user_fk: userId,
+                review_gesture: true,
+            },
+            include: [
+                {
+                    model: Review, // Include the related Review model
+                    attributes: ['id', 'title', 'description', 'createdAt', 'updatedAt'], // Specify which fields to fetch
+                    include: [
+                        {
+                            model: Genre, // Include related genres for the review
+                            attributes: ['id', 'name'],
+                        },
+                        {
+                            model: User, // Include the user who created the review
+                            attributes: ['id', 'name', 'email'],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!likedReviews || likedReviews.length === 0) {
+            return 'No liked reviews found.';
+        }
+
+        return likedReviews;
+    } catch (error) {
+        console.error('Error fetching liked reviews:', error);
+        throw new Error('An error occurred while fetching liked reviews.');
+    }
+}
 
 export default router;
