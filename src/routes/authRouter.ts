@@ -7,6 +7,7 @@ import { User } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
 import { Role } from "../other_services/model/seqModel";
 import dotenv from "dotenv";
+import { publishMessage } from "../rabbitmqPublisher";
 
 dotenv.config();
 
@@ -75,32 +76,41 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
             "email": result.email,
             "password": result.password,
             "role_fk": result.role_fk, // Include role_fk in the JWT payload
-        }
+        };
         console.log("Role fk: ", jwtUser.role_fk);
-
         
-       
-        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
+        const resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
+
+        const resultWithTokenForRabbitMQ = {
+            event: "login", 
+            authToken: resultWithToken
+        };
+
+        // Publish the message to RabbitMQ
+        await publishMessage(resultWithTokenForRabbitMQ);
+        console.log("Message published to RabbitMQ: Successfully sent");
+
+        // Respond to the client
         res.status(200).send(resultWithToken);
         console.log("User:", jwtUser.name, "has signed in");
         return resultWithToken;
-    }catch(err:any){
-        if (err.message == "No user found with the given credentials"){
+    } catch (err: any) {
+        if (err.message == "No user found with the given credentials") {
             res.status(404).send(err.message);
             logger.error(err.message);
             return err.message;
-        }else if (err.message == "Incorrect email or password"){
+        } else if (err.message == "Incorrect email or password") {
             res.status(401).send(err.message);
             logger.error(err.message);
             return err.message;
-        }else{
+        } else {
             res.status(500).send("Something went wrong while logging in");
-            console.log("Error: ", err)
+            console.log("Error: ", err);
             logger.error(err.message);
             return "Something went wrong while logging in (returning 500)";
         }
     }
-}); 
+});
 
 
 

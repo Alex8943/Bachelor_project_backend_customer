@@ -9,7 +9,7 @@ import roleRouter from './routes/roleRouter'
 import userTapRouter from './routes/userTapRouter';
 import genreRouter from './routes/genreRouter';
 import cors from 'cors';
-//import { initializeRabbitMQ, startListening } from './rabbitmqSubscriber'
+import { connectRabbitMQ, initializeRabbitMQ, publishMessage } from './rabbitmqPublisher';
 
 
 const app = express();
@@ -32,7 +32,18 @@ process.on('SIGINT', () => {
 });
 
 app.listen(3001, async () => {
-    //await initializeRabbitMQ();
-    //startListening(); 
-    console.log('customer server is running on localhost:3001');
+    await connectRabbitMQ();
+
+    console.log('Connected to RabbitMQ');
+
+    await initializeRabbitMQ();
+    console.log('RabbitMQ initialized');
+
+    await publishMessage({ message: 'Hello from customer backend' });
+    console.log('Message published to RabbitMQ');
+     
+    
+    console.log("Customer backend server is running on http://localhost:3001");
+    
+   
 });

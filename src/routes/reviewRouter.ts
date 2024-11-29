@@ -282,6 +282,7 @@ export async function getReviewsThatIsSoftDeleted() {
 // Delete review endpoint
 router.put("/delete/review/:id", async (req, res) => {
     try {
+        // TODO: ensure that only yhe logged user has access to delete its own reviews
         const result = await deleteReview(req.params.id); // Pass only the ID
         console.log("Deleting review with ID: ", req.params.id);
 
