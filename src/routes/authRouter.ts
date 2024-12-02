@@ -26,45 +26,51 @@ const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: N
 
 router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
     try {
-        const { name, lastname, email, password, role_fk } = req.body;
-
-        // Create user
-        const result: any = await createUser(name, lastname, email, password, role_fk);
-
-        // Prepare JWT payload
-        const jwtUser = {
-            id: result.id,
-            name: result.name,
-            lastname: result.lastname,
-            email: result.email,
-            role_fk: result.role_fk,
-            roleName: result.rolename, // Include role name in the payload
-        };
-
-        // Generate JWT token
-        const token = jwt.sign({ user: jwtUser }, "secret");
-
-        // Return response with token and user data
-        const resultWithToken = {
-            authToken: token,
-            user: result,
-        };
-
-        console.log("User creation successful:", resultWithToken);
-        res.status(200).json(resultWithToken);
+      const { name, lastname, email, password, role_fk } = req.body;
+  
+      // Create user
+      const result: any = await createUser(name, lastname, email, password, role_fk);
+      console.log("Result from createUser:", result);
+  
+      // Prepare JWT payload
+      const jwtUser = {
+        id: result.id,
+        name: result.name,
+        lastname: result.lastname,
+        email: result.email,
+        role_fk: result.role_fk,
+        roleName: result.rolename, // Include role name in the payload
+      };
+      
+  
+      // Generate JWT token
+      const token = jwt.sign({ user: jwtUser }, "secret");
+    
+  
+      
+      const resultWithToken = { authToken: token, user: result };
+      const resultWithTokenForRabbitMQ = { event: "signup", authToken: resultWithToken };
+      console.log("Message to be published to RabbitMQ:", resultWithTokenForRabbitMQ);
+  
+     
+      await publishMessage(resultWithTokenForRabbitMQ);
+  
+      console.log("User:", jwtUser.name, "has signed up");
+      res.status(200).json(resultWithToken);
+  
     } catch (err: any) {
-        console.error("Error in /auth/signup:", err);
-
-        if (err.code === 409) {
-            res.status(409).json({ message: err.message });
-        } else if (err.code === 400) {
-            res.status(400).json({ message: err.message });
-        } else {
-            res.status(500).json({ message: "Something went wrong while creating user" });
-        }
+      console.error("Error in /auth/signup:", err);
+  
+      if (err.code === 409) {
+        res.status(409).json({ message: err.message });
+      } else if (err.code === 400) {
+        res.status(400).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Something went wrong while creating user" });
+      }
     }
-});
-
+  });
+  
 
 router.post("/auth/login", validation(loginSchema), async (req, res) => {
     try {
@@ -92,8 +98,9 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
 
         // Respond to the client
         res.status(200).send(resultWithToken);
-        console.log("User:", jwtUser.name, "has signed in");
+        console.log("User:", jwtUser.name, "has logged in");
         return resultWithToken;
+
     } catch (err: any) {
         if (err.message == "No user found with the given credentials") {
             res.status(404).send(err.message);
