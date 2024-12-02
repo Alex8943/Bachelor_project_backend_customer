@@ -1,5 +1,4 @@
 import Joi from "joi";
-import { Role } from "../other_services/model/seqModel";
 
 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

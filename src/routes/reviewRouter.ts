@@ -5,12 +5,13 @@ import sequelize from "../other_services/sequelizeConnection";
 import { NumberDataTypeConstructor, QueryTypes } from "sequelize";
 import conn from "../db_services/db_connection";
 import { RowDataPacket } from "mysql2";
+import verifyUser from "./authenticateUser";
+
 
 const router = express.Router();
 
 
-
-router.post("/review", async (req, res) => {
+router.post("/review", verifyUser, async (req, res) => {
     try {
         const result = await createReview(req.body);
         res.status(200).send(result);
@@ -61,7 +62,7 @@ export async function createReview(values: any) {
 
 
 // Route to search for a review by title
-router.get("/review/:title", async (req, res) => {
+router.get("/review/:title", verifyUser, async (req, res) => {
     
     try {
         // Access title from req.params instead of req.body
@@ -111,7 +112,7 @@ export async function searchReviewByTitle(value: string) {
 
 
 
-router.put("/update/review/:id", async (req, res) => {
+router.put("/update/review/:id", verifyUser, async (req, res) => {
     try{
         const reviewId = parseInt(req.params.id); // Extract `id` from the URL as a number
         const result = await updateReview(reviewId, req.body); // Pass `reviewId` and `req.body` separately
@@ -158,7 +159,7 @@ export async function updateReview(id: number, data: any) {
     }
 }
 
-router.get("/reviews/:max", async (req, res) => {
+router.get("/reviews/:max", verifyUser, async (req, res) => {
     try {
       const max = parseInt(req.params.max, 10); // Convert the max parameter to a number
       
@@ -195,7 +196,7 @@ export async function getRangeOfReviews(max: number) {
 
 
 //Get one review 
-router.get("/getReview/:id", async (req, res) => {
+router.get("/getReview/:id", verifyUser, async (req, res) => {
     try {
         
         const result = await getOneReview(req.params);
@@ -238,7 +239,7 @@ export async function getOneReview(value: any) {
 
 
 // Get all reviews with media, user, and genres
-router.get("/softDeletedReviews", async (req, res) => {
+router.get("/softDeletedReviews", verifyUser, async (req, res) => {
     try {
         const reviews = await getReviewsThatIsSoftDeleted();
         res.status(200).send(reviews);
@@ -280,7 +281,7 @@ export async function getReviewsThatIsSoftDeleted() {
 
 
 // Delete review endpoint
-router.put("/delete/review/:id", async (req, res) => {
+router.put("/delete/review/:id", verifyUser, async (req, res) => {
     try {
         // TODO: ensure that only yhe logged user has access to delete its own reviews
         const result = await deleteReview(req.params.id); // Pass only the ID
@@ -320,7 +321,7 @@ export async function deleteReview(id: any) { // Treat id as the actual ID
 
 
 
-router.put("/undelete/review/:id", async (req, res) => {
+router.put("/undelete/review/:id", verifyUser, async (req, res) => {
     try {
         const result = await unDeleteReview(req.params.id); // Pass only the ID
         console.log("Undeleting review with ID: ", req.params.id);

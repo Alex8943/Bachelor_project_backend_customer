@@ -1,5 +1,4 @@
 import express from 'express';
-
 import { 
     ReviewActions, 
     Review, 
@@ -7,13 +6,13 @@ import {
     Genre, 
     User 
 } from '../other_services/model/seqModel'; 
-
 import logger from '../other_services/winstonLogger';
+import verifyUser from './authenticateUser';
 
 const router = express.Router();
 
 // Endpoint to like a review
-router.post('/like', async (req, res) => {
+router.post('/like', verifyUser, async (req, res) => {
     try {
         const result = await likeAReview(req.body.userId, req.body.reviewId);
         res.status(200).send(result);
@@ -97,7 +96,7 @@ export async function likeAReview(userId: number, reviewId: number): Promise<str
 
 
 
-router.get('/liked/:userId', async (req, res) => {
+router.get('/liked/:userId', verifyUser, async (req, res) => {
     try {
         const likedReviews = await getAllLikedReviewsFromUser(Number(req.params.userId));
         res.status(200).send(likedReviews);
@@ -147,7 +146,7 @@ export async function getAllLikedReviewsFromUser(userId: number) {
     }
 }
 
-router.put('/dislike', async (req, res) => {
+router.put('/dislike', verifyUser, async (req, res) => {
     try {
         const result = await disLikeAReviewFromUser(req.body.userId, req.body.reviewId);
         res.status(200).send(result);
