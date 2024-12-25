@@ -90,7 +90,7 @@ export async function searchReviewByTitle(value: string) {
             LEFT JOIN stohtpsd_company.media m ON r.media_fk = m.id
             LEFT JOIN stohtpsd_company.review_genres rg ON r.id = rg.review_fk
             LEFT JOIN stohtpsd_company.genre g ON rg.genre_fk = g.id
-            WHERE r.title LIKE ?
+            WHERE LOWER(r.title) LIKE LOWER(?)
             GROUP BY r.id
         `;
         const [rows] = await connection.execute<RowDataPacket[]>(query, [`%${value}%`]);
