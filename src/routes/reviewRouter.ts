@@ -19,7 +19,7 @@ router.post("/review", verifyUser, async (req, res) => {
         console.error("Error creating review: ", err);
         res.status(500).send("Something went wrong while creating the review");
     }
-});
+}); 
 
 export async function createReview(values: any) {
     const t = await sequelize.transaction(); 

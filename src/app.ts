@@ -8,6 +8,8 @@ import reviewRouter from './routes/reviewRouter'
 import roleRouter from './routes/roleRouter'
 import userTapRouter from './routes/userTapRouter';
 import genreRouter from './routes/genreRouter';
+import platformRouter from './routes/platformRouter';
+import mediaRouter from './routes/mediaRouter';
 import cors from 'cors';
 import { connectRabbitMQ, initializeRabbitMQ, publishMessage } from './rabbitmqPublisher';
 
@@ -24,6 +26,8 @@ app.use(reviewRouter);
 app.use(roleRouter);
 app.use(userTapRouter);
 app.use(genreRouter);
+app.use(platformRouter);
+app.use(mediaRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 
@@ -31,19 +35,16 @@ process.on('SIGINT', () => {
     process.exit(0);
 });
 
-app.listen(3001, async () => {
+app.listen(4000, async () => {
     await connectRabbitMQ();
 
-    console.log('Connected to RabbitMQ');
-
     await initializeRabbitMQ();
-    console.log('RabbitMQ initialized');
 
     await publishMessage({ message: 'Hello from customer backend' });
     console.log('Message published to RabbitMQ');
      
     
-    console.log("Customer backend server is running on http://localhost:3001");
+    console.log("Customer backend server is running on port 4000");
     
    
 });

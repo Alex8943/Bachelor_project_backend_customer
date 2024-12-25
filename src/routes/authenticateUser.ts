@@ -15,9 +15,11 @@ export default function verifyUser(req: any, res: any, next: any) {
 
     // Authorization logic (if required, e.g., match user ID)
     const userIdFromToken = decoded.user_id; // Adjust based on your JWT payload structure
-    if (req.params.id && parseInt(req.params.id) !== userIdFromToken) {
+    
+    //We dont need to check if the user, that is trying to access the resource, is the same as the user that is logged in.
+    /*if (req.params.id && parseInt(req.params.id) !== userIdFromToken) {
       return res.status(403).json({ message: "You are not authorized to access this resource" });
-    }
+    }*/
 
     // Attach user info to request for further use in downstream middleware/routes
     req.body.user = decoded;

@@ -116,7 +116,10 @@ export async function getReviewsByUserId(value: any){
     try{
 
         const reviews = await Review.findAll({
-            where: { user_fk: value }, // Filter reviews by user foreign key
+            where: { 
+                user_fk: value,
+                isBlocked: false
+            }, 
         });
         return reviews;
 
@@ -196,6 +199,38 @@ export async function searchUserByName(value: string) {
         throw error;
     } finally {
         connection.release(); // Release the database connection
+    }
+}
+
+
+router.put('/update/user/:id', verifyUser, async (req, res) => {
+    try {
+        const result = await updateUser(req.params.id, req.body);
+        res.status(200).send(result);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).send('Something went wrong while updating the user');
+    }
+});
+
+export async function updateUser(id: any, data: any) {
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            console.log('User does not exist');
+            Logger.error('User does not exist');
+            return 'User does not exist';
+        }
+        console.log('User exists');
+
+        await User.update(data, { where: { id: id } });
+        Logger.info('User updated successfully');
+
+        return { message: 'User updated successfully' };
+    } catch (error) {
+        console.error('Error updating user:', error);
+        Logger.error('Error updating user:', error);
+        throw error;
     }
 }
 
