@@ -1,9 +1,13 @@
 import amqp from "amqplib";
 import amqplib from 'amqplib';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 let channel: amqp.Channel | null = null;
 
-const RABBITMQ_URL = 'amqp://localhost'; 
+//const RABBITMQ_URL = 'amqp://localhost'; 
+const RABBITMQ_URL = process.env.rabbitmq_prod_port || 'amqp://localhost';
 const QUEUE_NAME = "authentication queue"; // Same queue as used by the Admin backend
 
 export const connectRabbitMQ = async () => {
