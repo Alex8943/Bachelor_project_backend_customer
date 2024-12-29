@@ -1,30 +1,36 @@
 import amqp from "amqplib";
 import amqplib from 'amqplib';
+import { error } from "console";
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 let channel: amqp.Channel | null = null;
 
-//const RABBITMQ_URL = 'amqp://localhost'; 
-const RABBITMQ_URL = process.env.rabbitmq_prod_port || 'amqp://localhost';
-const QUEUE_NAME = "authentication queue"; // Same queue as used by the Admin backend
+const PROD_RABBITMQ_URL = process.env.rabbitmq_prod_port || 'amqp://localhost:5672'; 
+const QUEUE_NAME = "authentication queue"; 
 
 export const connectRabbitMQ = async () => {
+  let connection;
   try {
-      const connection = await amqplib.connect(RABBITMQ_URL);
-      channel = await connection.createChannel();
-      console.log('Connected to RabbitMQ');
+    connection = await amqplib.connect(PROD_RABBITMQ_URL);
+    console.log('Connected to RabbitMQ (Production)');
   } catch (error) {
-      console.error('Failed to connect to RabbitMQ:', error);
-      throw error;
+    console.error('Failed to connect to Production RabbitMQ,', error);
+    throw error;
+   
   }
+
+  const channel = await connection.createChannel();
+  console.log('RabbitMQ Channel created. ');
+  return channel;
 };
+
 
 // Initialize RabbitMQ connection
 export const initializeRabbitMQ = async () => {
   try {
-    const connection = await amqp.connect(RABBITMQ_URL);
+    const connection = await amqp.connect(PROD_RABBITMQ_URL);
     channel = await connection.createChannel();
     await channel.assertQueue(QUEUE_NAME, { durable: true });
     console.log(
@@ -35,19 +41,21 @@ export const initializeRabbitMQ = async () => {
   }
 };
 
-// Function to publish messages
+
 export const publishMessage = async (message: any) => {
   if (!channel) {
-    console.error("RabbitMQ channel is not initialized.");
-    return;
+    console.warn("Channel not initialized. Initializing now...");
+    await initializeRabbitMQ();  // Reinitialize if null
   }
 
   try {
     const msgBuffer = Buffer.from(JSON.stringify(message));
-    channel.sendToQueue(QUEUE_NAME, msgBuffer);
-    
+    channel!.sendToQueue(QUEUE_NAME, msgBuffer);
+    console.log("Message sent to queue:", message);
   } catch (error) {
     console.error("Error publishing message to RabbitMQ:", error);
   }
 };
+
+
 

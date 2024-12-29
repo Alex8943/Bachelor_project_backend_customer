@@ -38,15 +38,19 @@ router.post("/auth/signup", async (req, res) => {
         name: result.name,
         lastname: result.lastname,
         email: result.email
+        
       };
       
       // Generate JWT token
       const token = jwt.sign({ user: jwtUser }, "secret");
       const resultWithToken = { authToken: token, user: result };
       const resultWithTokenForRabbitMQ = { 
-            event: "signup", 
-            authToken: resultWithToken 
-        };
+        event: "signup",
+        name: result.name,
+        email: result.email,
+        authToken: token
+      };
+      
       
         console.log("Message to be published to RabbitMQ:", resultWithTokenForRabbitMQ);
   
