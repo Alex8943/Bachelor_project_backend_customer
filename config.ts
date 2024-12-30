@@ -36,4 +36,4 @@ export const devConfig = {
     },    
 };
 
-export const config = (environment == "production" ? devConfig : prodConfig);
+export const config = (environment == "production" ? prodConfig : devConfig);
