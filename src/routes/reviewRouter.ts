@@ -3,7 +3,7 @@ import { Review as Reviews, User, Media, Genre, ReviewGenres } from "../other_se
 import logger from "../other_services/winstonLogger";
 import sequelize from "../other_services/sequelizeConnection";
 import { NumberDataTypeConstructor, QueryTypes } from "sequelize";
-import conn from "../db_services/db_connection";
+import conn from "../db_services/local_database/db_connection";
 import { RowDataPacket } from "mysql2";
 import verifyUser from "./authenticateUser";
 

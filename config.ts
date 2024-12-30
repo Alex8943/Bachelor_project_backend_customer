@@ -3,15 +3,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const environment = process.env.NODE_ENV; 
+const commonConfig = {
+    current_env: environment,
+};
 
 const prodConfig = {
-    current_env: environment,
+    ...commonConfig,
     dbConfig: {
         mysql: {
-            mysql_host: process.env.prod_host || 'localhost',
-            mysql_user: process.env.prod_user || 'root',
-            mysql_password: process.env.prod_password || '',
-            mysql_database: process.env.prod_database || 'prod_db',
+            mysql_host: process.env.prod_host,
+            mysql_user: process.env.prod_user,
+            mysql_password: process.env.prod_password,
+            mysql_database: process.env.prod_database,
             mysql_port: process.env.prod_port ? parseInt(process.env.prod_port) : 3306,  // Convert to number
         },
         APP_PORT: process.env.prod_port ? parseInt(process.env.prod_port) : 8080,  // Convert to number
@@ -19,8 +22,8 @@ const prodConfig = {
     
 };
 
-export const commonConfig = {
-    //...commonConfig,
+export const devConfig = {
+    ...commonConfig,
     dbConfig: {
         mysql: {
             mysql_host: process.env.dev_host,
@@ -33,4 +36,4 @@ export const commonConfig = {
     },    
 };
 
-export const config = (environment === 'development') ? commonConfig : commonConfig;
+export const config = (environment == "production" ? devConfig : prodConfig);

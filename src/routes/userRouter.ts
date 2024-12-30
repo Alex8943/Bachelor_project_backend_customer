@@ -2,7 +2,7 @@ import express from 'express';
 import { User, Review, Role } from '../other_services/model/seqModel';
 import Logger from '../other_services/winstonLogger';
 import sequelize from '../other_services/sequelizeConnection';
-import conn from '../db_services/db_connection';
+import conn from '../db_services/local_database/db_connection';
 import logger from '../other_services/winstonLogger';
 import { RowDataPacket } from "mysql2/promise";
 import verifyUser from './authenticateUser';

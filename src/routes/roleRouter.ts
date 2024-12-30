@@ -1,6 +1,6 @@
 import express from 'express';
 import Logger from '../other_services/winstonLogger';
-import conn from '../db_services/db_connection';
+import conn from '../db_services/local_database/db_connection';
 import verifyUser from './authenticateUser';
 
 const router = express.Router();

@@ -1,7 +1,9 @@
 import express from 'express';
 import logger from './other_services/winstonLogger'
-import { testDBConnection } from "./db_services/db_connection";
-import dump from './db_services/backup'
+import { testDBConnection } from "./db_services/local_database/db_connection";
+import { testProductionDatabase } from './db_services/prod_database/db_connection';
+import { seedData } from './db_services/prod_database/seed_data';
+import dump from './db_services/local_database/backup'
 import authRouter from './routes/authRouter';
 import userRouter from './routes/userRouter'
 import reviewRouter from './routes/reviewRouter'
@@ -20,6 +22,9 @@ app.use(cors());
 //testDBConnection();
 //dump();
 
+//testProductionDatabase();
+//seedData();
+
 app.use(authRouter); 
 app.use(userRouter);
 app.use(reviewRouter);
@@ -36,9 +41,8 @@ process.on('SIGINT', () => {
 });
 
 app.listen(4000, async () => {
-    await connectRabbitMQ();
-    await initializeRabbitMQ();
+    //await connectRabbitMQ();
+    //await initializeRabbitMQ();
     console.log("Customer backend server is running on port 4000");
     
-   
 });
