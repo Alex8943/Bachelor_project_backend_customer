@@ -41,8 +41,8 @@ process.on('SIGINT', () => {
 });
 
 app.listen(4000, async () => {
-    //await connectRabbitMQ();
-    //await initializeRabbitMQ();
+    await connectRabbitMQ();
+    await initializeRabbitMQ();
     console.log("Customer backend server is running on port 4000");
     
 });
