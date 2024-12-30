@@ -2,7 +2,7 @@ import express from 'express';
 import logger from './other_services/winstonLogger'
 import { testDBConnection } from "./db_services/local_database/db_connection";
 import { testProductionDatabase } from './db_services/prod_database/db_connection';
-import { seedData } from './db_services/prod_database/seed_data';
+//import { seedData } from './db_services/prod_database/seed_data';
 import dump from './db_services/local_database/backup'
 import authRouter from './routes/authRouter';
 import userRouter from './routes/userRouter'
