@@ -15,7 +15,7 @@
     "@types/joi": "^17.2.3",
     "@types/sequelize": "^4.28.20",
     "@types/winston": "^2.4.4",
-    "amqplib": "^0.10.4",
+    "amqplib": "^0.10.5",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",

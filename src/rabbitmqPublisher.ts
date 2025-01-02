@@ -16,7 +16,7 @@ export const connectRabbitMQ = async () => {
     connection = await amqplib.connect(PROD_RABBITMQ_URL);
     console.log('Connected to RabbitMQ');
   } catch (error) {
-    console.error('Failed to connect to Production RabbitMQ,', error);
+    console.error('Failed to connect to rabbitMQ,', error);
     throw error;
    
   }

@@ -17,6 +17,7 @@ import { connectRabbitMQ, initializeRabbitMQ, publishMessage } from './rabbitmqP
 
 
 const app = express();
+
 app.use(cors());
 
 //testDBConnection();
