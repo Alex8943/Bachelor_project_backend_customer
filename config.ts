@@ -1,12 +1,14 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 
-const environment = process.env.NODE_ENV; 
+const environment = process.env.NODE_ENV;
 const commonConfig = {
     current_env: environment,
 };
 
+// Production Configuration
 const prodConfig = {
     ...commonConfig,
     dbConfig: {
@@ -15,11 +17,18 @@ const prodConfig = {
             mysql_user: process.env.prod_user,
             mysql_password: process.env.prod_password,
             mysql_database: process.env.prod_database,
-            mysql_port: process.env.prod_port ? parseInt(process.env.prod_port) : 3306,  // Convert to number
+            mysql_port: process.env.prod_port ? parseInt(process.env.prod_port) : 3306,
+            dialectOptions: process.env.prod_ssl === 'true' ? {
+                ssl: {
+                    rejectUnauthorized: true,
+                    ca: process.env.prod_ssl_cert_path
+                        ? fs.readFileSync(process.env.prod_ssl_cert_path).toString()
+                        : undefined
+                }
+            } : {}
         },
-        APP_PORT: process.env.prod_port ? parseInt(process.env.prod_port) : 8080,  // Convert to number
+        APP_PORT: process.env.prod_port ? parseInt(process.env.prod_port) : 8080,
     },
-    
 };
 
 export const devConfig = {
@@ -30,10 +39,17 @@ export const devConfig = {
             mysql_user: process.env.dev_user,
             mysql_password: process.env.dev_password,
             mysql_database: process.env.dev_database,
-            mysql_port: process.env.dev_port ? parseInt(process.env.dev_port) : undefined,  // Convert to number
+            mysql_port: process.env.dev_port ? parseInt(process.env.dev_port) : undefined,
+            dialectOptions: {
+                ssl: {
+                    rejectUnauthorized: false  // Bypass SSL in dev
+                }
+            }
         },
-        APP_PORT: process.env.dev_port ? parseInt(process.env.dev_port) : undefined,  // Convert to number
-    },    
+        APP_PORT: process.env.dev_port ? parseInt(process.env.dev_port) : undefined,
+    },
 };
 
-export const config = (environment == "production" ? prodConfig : devConfig);
+console.log(`Current Environment: ${environment}`);
+
+export const config = (environment === "production" ? prodConfig : devConfig);

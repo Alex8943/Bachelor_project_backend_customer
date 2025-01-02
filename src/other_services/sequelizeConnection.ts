@@ -11,14 +11,15 @@ const sequelize = new Sequelize(
         host: dbConfig.mysql.mysql_host,
         dialect: 'mysql',
         port: dbConfig.mysql.mysql_port,
-        dialectOptions: {
+        dialectOptions: process.env.NODE_ENV === 'development' ? {} : {
             ssl: {
                 require: true,
-                rejectUnauthorized: true,  // Ensures secure connection
+                rejectUnauthorized: true,  // Enforce SSL only in production
             }
         }
     }
 );
+
 
 export const sequelizeAuth = async () => {
     sequelize.authenticate()
