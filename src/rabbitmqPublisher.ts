@@ -8,6 +8,7 @@ dotenv.config();
 let channel: amqp.Channel | null = null;
 
 const PROD_RABBITMQ_URL = process.env.rabbitmq_port || 'amqp://localhost:5672'; 
+console.log('RabbitMQ URL:', PROD_RABBITMQ_URL);
 const QUEUE_NAME = "authentication queue"; 
 
 export const connectRabbitMQ = async () => {
