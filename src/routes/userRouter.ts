@@ -13,7 +13,6 @@ const router = express.Router();
 router.get('/users', verifyUser, async (req, res) => {
     try {
         const users = await getUsers();
-        console.log('Users fetched successfully');
         res.status(200).send(users);
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -32,7 +31,6 @@ router.get('/users', verifyUser, async (req, res) => {
                 ],
                 attributes: { exclude: ['password'] }, // Exclude sensitive fields like 'password' from the result
             });
-            Logger.info("Users fetched successfully");
             return userResult;
         } catch (error) {
             Logger.error("Error fetching users: ", error);
@@ -58,7 +56,6 @@ export async function getUserById(value: any){
         const userResult = await User.findOne({
             where: {id: value},
         });
-        Logger.info("Specific users fetched successfully");
         return userResult;
     }catch(error){
         Logger.error("Error fetching specific users: ", error);
@@ -69,7 +66,6 @@ export async function getUserById(value: any){
 router.get('/users/role/:userRole', verifyUser, async (req, res) => {
     try {
         const users = await getUsersByRole(req.params.userRole);
-        console.log('Specific users fetched successfully');
         res.status(200).send(users);
     } catch (error) {
         console.error('Error fetching specific users:', error);

@@ -200,7 +200,7 @@ router.get("/getReview/:id", verifyUser, async (req, res) => {
     try {
         
         const result = await getOneReview(req.params);
-        console.log("##############RESULT FOR FETCHING ONE REVIEW: ", result);
+        logger.info("##############RESULT FOR FETCHING ONE REVIEW: ", result);
         res.status(200).send(result);
     } catch (err) {
         console.error("Error fetching review: ", err);
