@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node ./src/app.ts",
-    "build": "tsc"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec ts-node --transpile-only ./src/app.ts",
+    "build": "tsc",
+    "start": "nodemon ./dist/src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -22,22 +24,20 @@
     "joi": "^17.13.3",
     "mysql2": "^3.12.0",
     "node-cron": "^3.0.3",
-    "nodemon": "^3.1.9",
     "sequelize": "^6.37.5",
-    "ts-node": "^10.9.1",
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.3.0",
     "@types/amqplib": "^0.10.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/faker": "^6.6.11",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.9.0",
     "@types/node-cron": "^3.0.11",
     "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
-    "typescript": "^5.6.3"
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
