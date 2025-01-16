@@ -19,6 +19,13 @@ const app = express();
 
 app.use(cors());
 
+app.use(cors({
+  origin: 'https://bachelor-project-frontend-customer.onrender.com', // Replace with your frontend Render URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // If cookies or auth headers are involved
+}));
+
+
 //testDBConnection();
 //dump();
 
