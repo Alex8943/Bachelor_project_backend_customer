@@ -12,26 +12,22 @@ import genreRouter from './routes/genreRouter';
 import platformRouter from './routes/platformRouter';
 import mediaRouter from './routes/mediaRouter';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import { connectRabbitMQ, initializeRabbitMQ, publishMessage } from './rabbitmqPublisher';
 
+dotenv.config();
 
 const app = express();
 
-app.use(cors());
-
+// Simplified CORS configuration
 app.use(cors({
-  origin: 'https://bachelor-project-frontend-customer.onrender.com', // Replace with your frontend Render URL
-  methods: ['*'],
-  credentials: true, // If cookies or auth headers are involved
+  origin: '*', // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  credentials: true, // Needed for cookies or auth headers
 }));
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://bachelor-project-frontend-customer.onrender.com');
-    res.header('Access-Control-Allow-Methods', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-  });
+
 
 
 //testDBConnection();
