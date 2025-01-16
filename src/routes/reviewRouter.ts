@@ -186,6 +186,7 @@ export async function getRangeOfReviews(max: number) {
                 through: { attributes: [] }, // Exclude junction table attributes
             },
         });
+        console.log("Reviews fetched at a time: ", reviews.length);
         return reviews;
     } catch (error) {
         logger.error("Error fetching specific reviews: ", error);
