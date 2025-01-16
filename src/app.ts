@@ -21,9 +21,17 @@ app.use(cors());
 
 app.use(cors({
   origin: 'https://bachelor-project-frontend-customer.onrender.com', // Replace with your frontend Render URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['*'],
   credentials: true, // If cookies or auth headers are involved
 }));
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://bachelor-project-frontend-customer.onrender.com');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+  });
 
 
 //testDBConnection();
