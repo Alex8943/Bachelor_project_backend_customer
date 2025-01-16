@@ -159,11 +159,12 @@ export async function updateReview(id: number, data: any) {
     }
 }
 
-router.get("/reviews/:max", verifyUser, async (req, res) => {
+router.get("/reviews/:max/:offset", verifyUser, async (req, res) => {
     try {
-      const max = parseInt(req.params.max, 10); // Convert the max parameter to a number
-      
-      const reviews = await getRangeOfReviews(max);
+      const max = parseInt(req.params.max, 10); // Number of reviews to fetch
+      const offset = parseInt(req.params.offset, 10); // Starting point for fetching reviews
+  
+      const reviews = await getRangeOfReviews(max, offset); // Pass both max and offset to the function
       res.status(200).send(reviews);
     } catch (err) {
       console.error("Error fetching reviews: ", err);
@@ -171,28 +172,28 @@ router.get("/reviews/:max", verifyUser, async (req, res) => {
     }
   });
   
-
-
-// Function to fetch reviews
-export async function getRangeOfReviews(max: number) {
+  // Function to fetch reviews
+  export async function getRangeOfReviews(max: number, offset: number) {
     try {
-        const reviews = await Reviews.findAll({
-            where: {
-                isBlocked: false,
-            },
-            limit: max,
-            include: {
-                model: Genre, // Include genres for each review
-                through: { attributes: [] }, // Exclude junction table attributes
-            },
-        });
-        console.log("Reviews fetched at a time: ", reviews.length);
-        return reviews;
+      const reviews = await Reviews.findAll({
+        where: {
+          isBlocked: false,
+        },
+        limit: max,
+        offset: offset, // Add offset to fetch the correct range
+        include: {
+          model: Genre, // Include genres for each review
+          through: { attributes: [] }, // Exclude junction table attributes
+        },
+      });
+      console.log(`Reviews fetched: ${reviews.length}, Offset: ${offset}`);
+      return reviews;
     } catch (error) {
-        logger.error("Error fetching specific reviews: ", error);
-        throw error;
+      console.error("Error fetching specific reviews: ", error);
+      throw error;
     }
-}
+  }
+  
 
 
 
